@@ -217,6 +217,7 @@ make_plots <- function(data_country, covariates_country_long,
     theme(legend.position="right")
   
   p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
+  write.csv(data_country, file = paste0("results/", country, "_data_country_", filename2, ".csv"))
   save_plot(filename = paste0("figures/", country, "_three_pannel_", filename2, ".pdf"), 
             p, base_width = 14)
 }

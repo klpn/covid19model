@@ -18,19 +18,16 @@ countries <- c(
   "Switzerland"
 )
 
-args = commandArgs(trailingOnly=TRUE)
-if(length(args) == 0) {
-  args = 'base'
-} 
+args = commandArgs(trailingOnly=TRUE) 
 StanModel = args[1]
 
 print(sprintf("Running %s",StanModel))
 
 ## Reading all data
-d=readRDS('data/COVID-19-up-to-date.rds')
+d=readRDS(args[2])
 
 ## get IFR
-ifr.by.country = read.csv("data/weighted_fatality.csv")
+ifr.by.country = read.csv(args[3])
 ifr.by.country$country = as.character(ifr.by.country[,2])
 ifr.by.country$country[ifr.by.country$country == "United Kingdom"] = "United_Kingdom"
 
@@ -203,9 +200,12 @@ m = stan_model(paste0('stan-models/',StanModel,'.stan'))
 if(DEBUG) {
   fit = sampling(m,data=stan_data,iter=40,warmup=20,chains=2)
 } else { 
-  # fit = sampling(m,data=stan_data,iter=4000,warmup=2000,chains=8,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-  fit = sampling(m,data=stan_data,iter=200,warmup=100,chains=4,thin=4,control = list(adapt_delta = 0.90, max_treedepth = 10))
-}  
+  fit = sampling(m,data=stan_data,
+    iter=as.numeric(args[4]),
+    warmup=as.numeric(args[5]),
+    chains=as.numeric(args[6]),thin=4,
+    control = list(adapt_delta = 0.90, max_treedepth = 10))
+} 
 
 out = rstan::extract(fit)
 prediction = out$prediction
